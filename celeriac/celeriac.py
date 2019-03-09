@@ -9,6 +9,8 @@ import sys
 
 import git
 
+from celeriac.template import Template
+
 
 class Celeriac:
     """
@@ -27,6 +29,7 @@ class Celeriac:
         self.__flow = flow
         self.__venv = venv
         self.__repo = None
+        self.templates = {}
 
     @classmethod
     def print_err(cls, msg: str) -> None:
@@ -83,14 +86,18 @@ class Celeriac:
             )
             exit(2)
 
-    def generate_template(self) -> None:
-        """
-        Generation of basic directories and files template
-        :return:
-        """
-        # TODO: generate template structure
+    def add_template(self, name: str, filename: str):
+        data = {
+            "name": self.__name
+        }
+        self.templates[name] = Template.from_file(filename, data)
+
+    def generate_template(self, name: str):
+        self.templates[name].generate()
 
 
 if __name__ == '__main__':
     C = Celeriac('hello', flow=True)
+    C.add_template('celery', 'templates/celery.json')
     C.git_init()
+    C.generate_template('celery')
